@@ -1,0 +1,10 @@
+{
+  "validSeqRange": 2000,
+  "knowledgeLimit": 5000,
+  "rareLimit": 2,
+  "minimumImpact": 0.4,
+  "keySize": 4,
+  "inputDelimiter": "\t",
+  "storeFeatureDataUrl": "http://10.100.166.81:9200/keys/KEYS",
+  "storeMetaDataUrl": "http://10.100.166.81:9200/global/GLOBAL"
+}

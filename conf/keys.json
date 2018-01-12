@@ -1,0 +1,26 @@
+{
+  "mappings": {
+    "KEYS": {
+      "properties": {
+        "HAM": {
+          "type": "integer"
+        },
+        "KEY": {
+          "type": "text"
+        },
+        "KEY_HASHCODE": {
+          "type": "integer"
+        },
+        "KEY_SIZE": {
+          "type": "integer"
+        },
+        "SCAM": {
+          "type": "integer"
+        },
+        "UPDATE_SEQ": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

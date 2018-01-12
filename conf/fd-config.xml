@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<!-- MDB elasticsearch configuration for daily index -->
+	<property>
+		<!-- The elasticsearch server url -->
+		<name>elasticsearch.server</name>
+		<value>localhost:9200/fdindex/TEST_STORE</value>
+	</property>
+	<property>
+          <name>sequence.range</name>
+           <value>3000</value>
+	</property>
+	<property>
+          <name>rare.limit</name>
+           <value>3</value>
+	</property>
+	<property>
+          <name>knowledge.limit</name>
+           <value>5000</value>
+	</property>
+	<property>
+          <name>minimum.impact</name>
+           <value>0.8</value>
+	</property>
+	<property>
+		<name>input.delimiter</name>
+		<value>&#x9;</value>
+	</property>
+	<property>
+		<name>key.size</name>
+		<value>4</value>
+	</property>
+</configuration>

@@ -1,0 +1,17 @@
+{
+  "mappings": {
+    "GLOBAL": {
+      "properties": {
+        "UPDATE_SEQ": {
+          "type": "integer"
+        },
+        "HAM": {
+          "type": "integer"
+        },
+        "SCAM": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}
