@@ -1,4 +1,4 @@
-package tomketao.fd_phase_2.data;
+package tomketao.fd_phase_2.data.knowledge;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import tomketao.fd_phase_2.connection.ESConnection;
+import tomketao.fd_phase_2.data.FeatureKey;
+import tomketao.fd_phase_2.data.TrainingSetting;
 import tomketao.fd_phase_2.data.match.StringQueryRequest;
 import tomketao.fd_phase_2.data.response.MatchResponse;
 import tomketao.fd_phase_2.data.response.RespHit;

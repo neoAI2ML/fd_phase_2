@@ -7,8 +7,8 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import tomketao.fd_phase_2.data.FeatureKnowledge;
 import tomketao.fd_phase_2.data.TrainingSetting;
+import tomketao.fd_phase_2.data.knowledge.FeatureKnowledge;
 
 public class ScamTrainingProcess {
 	public static final Logger LOGGER = LoggerFactory.getLogger(ScamTrainingProcess.class);

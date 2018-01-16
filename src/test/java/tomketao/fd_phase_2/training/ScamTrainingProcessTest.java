@@ -5,8 +5,8 @@ import java.io.IOException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import tomketao.fd_phase_2.data.FeatureKnowledge;
 import tomketao.fd_phase_2.data.TrainingSetting;
+import tomketao.fd_phase_2.data.knowledge.FeatureKnowledge;
 import tomketao.fd_phase_2.training.ScamTrainingProcess;
 
 public class ScamTrainingProcessTest {
