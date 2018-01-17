@@ -23,16 +23,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({ "currentSequence", "currentFeatureCount" })
+@JsonPropertyOrder({ "currentSequence", "sampleCount", "currentFeatureCount" })
 public class FeatureKnowledge extends HashMap<Integer, FeatureKey> {
 	private static final long serialVersionUID = -6712633715281112680L;
 	public static final Logger LOGGER = LoggerFactory.getLogger(FeatureKnowledge.class);
 
 	@JsonProperty("currentSequence")
 	private int currentSequence;
+	
+	@JsonProperty("sampleCount")
+	private int sampleCount;
 
 	@JsonProperty("currentFeatureCount")
 	private Map<String, Integer> currentFeatureCount = new HashMap<String, Integer>();
+
+	public int getSampleCount() {
+		return sampleCount;
+	}
+
+	public void setSampleCount(int sampleCount) {
+		this.sampleCount = sampleCount;
+	}
 
 	public int getCurrentSequence() {
 		return currentSequence;
@@ -50,14 +61,17 @@ public class FeatureKnowledge extends HashMap<Integer, FeatureKey> {
 		this.currentFeatureCount = currentFeatureCount;
 	}
 
-	public boolean put_feature(String feature, String featureData, int sequence, TrainingSetting trainingSetting) {
+	public boolean put_feature(List<String> features, String featureData, int sequence, TrainingSetting trainingSetting) {
 		// update knowledge base global variables
 		setCurrentSequence(sequence);
-		Integer featureCount = getCurrentFeatureCount().get(feature);
-		if (featureCount == null) {
-			getCurrentFeatureCount().put(feature, 1);
-		} else {
-			getCurrentFeatureCount().put(feature, featureCount + 1);
+		setSampleCount(getSampleCount() + 1);
+		for(String ft : features) {
+			Integer featureCount = getCurrentFeatureCount().get(ft);
+			if (featureCount == null) {
+				getCurrentFeatureCount().put(ft, 1);
+			} else {
+				getCurrentFeatureCount().put(ft, featureCount + 1);
+			}
 		}
 
 		// update knowledge base feature keys
@@ -70,7 +84,7 @@ public class FeatureKnowledge extends HashMap<Integer, FeatureKey> {
 			for (int j = 0; j < trainingSetting.getKeySize() && i + j < keyWordList.length; j++) {
 				keyStr.append(StaticConstants.SPACE);
 				keyStr.append(wordNormalizer(keyWordList[i + j]));
-				addKeyFlag = put_feature_key(keyStr.substring(1), feature, sequence, j + 1);
+				addKeyFlag = put_feature_key(keyStr.substring(1), features, sequence, j + 1);
 			}
 		}
 
@@ -123,24 +137,19 @@ public class FeatureKnowledge extends HashMap<Integer, FeatureKey> {
 		return result;
 	}
 
-	private boolean put_feature_key(String key, String feature, int sequence, int sizeInWords) {
+	private boolean put_feature_key(String key, List<String> features, int sequence, int sizeInWords) {
 		int hashCode = key.hashCode();
 		boolean newKeyFlag = true;
 		FeatureKey ft_key = this.get(hashCode);
 		if (ft_key == null) {
-			ft_key = new FeatureKey(hashCode, key, sequence, sizeInWords);
+			ft_key = new FeatureKey(hashCode, key, sequence, sizeInWords, 1);
 			this.put(hashCode, ft_key);
-			Map<String, Integer> featureCounts = ft_key.getFeatureCounts();
-			featureCounts.put(feature, 1);
+			ft_key.updateFeatures(features);
 		} else {
 			newKeyFlag = false;
-			Map<String, Integer> featureCounts = ft_key.getFeatureCounts();
 			ft_key.setUpdateSeqNo(sequence);
-			if (featureCounts.get(feature) != null) {
-				featureCounts.put(feature, featureCounts.get(feature) + 1);
-			} else {
-				featureCounts.put(feature, 1);
-			}
+			ft_key.setSampleKeyCount(ft_key.getSampleKeyCount() + 1);
+			ft_key.updateFeatures(features);
 		}
 
 		return newKeyFlag;
@@ -162,9 +171,6 @@ public class FeatureKnowledge extends HashMap<Integer, FeatureKey> {
 			Integer updateSeq = this.get(item).getUpdateSeqNo();
 			if (updateSeq + trainingSetting.getValidSeqRange() < getCurrentSequence()) {
 				if (this.get(item).getSumOfFTCounts() < trainingSetting.getRareLimit()) {
-					// LOGGER.info("RARE ****** SeqNo:" + updateSeq +
-					// "\tFeatureCountSum: " + this.get(item).getSumOfFTCounts()
-					// + "\tCurrentSeq:" + getCurrentSequence());
 					rareList.add(item);
 				}
 			}
@@ -215,7 +221,9 @@ public class FeatureKnowledge extends HashMap<Integer, FeatureKey> {
 		RespHit ret = esMeta.retrieve("knowledge");
 		Map<String, Object> metaData = ret.getSource();
 		for (String key : metaData.keySet()) {
-			if (key.equals(StaticConstants.UPDATE_SEQ)) {
+			if (key.equals(StaticConstants.SAMPLE_CNT)) {
+				setSampleCount((Integer) metaData.get(StaticConstants.SAMPLE_CNT));
+			} else if (key.equals(StaticConstants.UPDATE_SEQ)) {
 				setCurrentSequence((Integer) metaData.get(StaticConstants.UPDATE_SEQ));
 			} else {
 				currentFeatureCount.put(key, (Integer) metaData.get(key));
@@ -235,11 +243,13 @@ public class FeatureKnowledge extends HashMap<Integer, FeatureKey> {
 				FeatureKey ft_key = new FeatureKey((Integer) featureData.get(StaticConstants.KEY_HASHCODE),
 						(String) featureData.get(StaticConstants.KEY),
 						(Integer) featureData.get(StaticConstants.UPDATE_SEQ),
-						(Integer) featureData.get(StaticConstants.KEY_SIZE));
+						(Integer) featureData.get(StaticConstants.KEY_SIZE),
+						(Integer) featureData.get(StaticConstants.KEY_CNT));
 
 				for (String key : featureData.keySet()) {
 					if (key.equals(StaticConstants.UPDATE_SEQ) || key.equals(StaticConstants.KEY_HASHCODE)
-							|| key.equals(StaticConstants.KEY) || key.equals(StaticConstants.KEY_SIZE)) {
+							|| key.equals(StaticConstants.KEY) || key.equals(StaticConstants.KEY_SIZE)
+							|| key.equals(StaticConstants.KEY_CNT)) {
 					} else {
 						ft_key.getFeatureCounts().put(key, (Integer) featureData.get(key));
 					}
@@ -255,6 +265,7 @@ public class FeatureKnowledge extends HashMap<Integer, FeatureKey> {
 		Map<String, Object> store_map = new HashMap<String, Object>();
 
 		store_map.put(StaticConstants.UPDATE_SEQ, getCurrentSequence());
+		store_map.put(StaticConstants.SAMPLE_CNT, getSampleCount());
 		store_map.putAll(getCurrentFeatureCount());
 
 		return store_map;

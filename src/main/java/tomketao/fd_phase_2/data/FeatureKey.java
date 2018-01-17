@@ -1,6 +1,7 @@
 package tomketao.fd_phase_2.data;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
@@ -11,7 +12,7 @@ import tomketao.fd_phase_2.util.CommonUtils;
 import tomketao.fd_phase_2.util.StaticConstants;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonPropertyOrder({ "keyString", "updateSeqNo", "keyHashCode", "sizeInword", "featureCounts", "missingFeatureCounts" })
+@JsonPropertyOrder({ "keyString", "updateSeqNo", "keyHashCode", "sizeInword", "featureCounts", "sampleKeyCount" })
 public class FeatureKey extends FeatureDetectObject {
 	private static final long serialVersionUID = 6569937637133679136L;
 	
@@ -29,25 +30,38 @@ public class FeatureKey extends FeatureDetectObject {
 	
 	@JsonProperty("featureCounts")
 	private Map<String, Integer> featureCounts;
-
-	@JsonProperty("missingFeatureCounts")
-	private Map<String, Integer> missingFeatureCounts;
 	
-	public FeatureKey(int hashCode, String key, int seqNo, int wordCount) {
+	@JsonProperty("sampleKeyCount")
+	private int sampleKeyCount;
+	
+	public FeatureKey(int hashCode, String key, int seqNo, int wordCount, int keyCount) {
 		setKeyString(key);
 		setUpdateSeqNo(seqNo);
 		setKeyHashCode(hashCode);
 		setSizeInword(wordCount);
+		setSampleKeyCount(keyCount);
 		featureCounts = new HashMap<String, Integer>();
-		missingFeatureCounts = new HashMap<String, Integer>();
+	}
+	
+	/*
+	 * The method updates the feature counts for each FeatureKey.
+	 */
+	public void updateFeatures(List<String> features) {
+		for(String feature : features) {
+			if(features != null && featureCounts.containsKey(feature)) {
+				featureCounts.put(feature, featureCounts.get(feature) + 1);
+			} else {
+				featureCounts.put(feature, 1);
+			}
+		}
 	}
 
-	public Map<String, Integer> getMissingFeatureCounts() {
-		return missingFeatureCounts;
+	public int getSampleKeyCount() {
+		return sampleKeyCount;
 	}
 
-	public void setMissingFeatureCounts(Map<String, Integer> missingFeatureCounts) {
-		this.missingFeatureCounts = missingFeatureCounts;
+	public void setSampleKeyCount(int sampleKeyCount) {
+		this.sampleKeyCount = sampleKeyCount;
 	}
 
 	public Map<String, Integer> getFeatureCounts() {
@@ -100,6 +114,7 @@ public class FeatureKey extends FeatureDetectObject {
 		store_map.put(StaticConstants.KEY, getKeyString());
 		store_map.put(StaticConstants.KEY_HASHCODE, getKeyHashCode());
 		store_map.put(StaticConstants.KEY_SIZE, getSizeInword());
+		store_map.put(StaticConstants.KEY_CNT, getSampleKeyCount());
 		store_map.put(StaticConstants.UPDATE_SEQ, getUpdateSeqNo());
 		store_map.putAll(getFeatureCounts());
 		

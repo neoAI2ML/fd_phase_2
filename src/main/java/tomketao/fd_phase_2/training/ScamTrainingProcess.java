@@ -3,6 +3,7 @@ package tomketao.fd_phase_2.training;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,7 @@ public class ScamTrainingProcess {
 			// read input to get recordid
 			String[] fields = line.split(trainingSetting.getInputDelimiter());
 			if (fields.length == 2) {
-				knowledge.put_feature(fields[0].toUpperCase(), fields[1], seq, trainingSetting);
+				knowledge.put_feature(Arrays.asList(fields[0].toUpperCase()), fields[1], seq, trainingSetting);
 			}
 
 			seq++;

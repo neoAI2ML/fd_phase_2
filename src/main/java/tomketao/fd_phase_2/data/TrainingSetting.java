@@ -65,7 +65,6 @@ public class TrainingSetting  extends FeatureDetectObject {
 		this.storeFeatureDataUrl = storeFeatureDataUrl;
 	}
 
-
 	@JsonProperty("validSeqRange")
 	private int validSeqRange;
 	

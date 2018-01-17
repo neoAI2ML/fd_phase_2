@@ -6,5 +6,6 @@
   "keySize": 4,
   "inputDelimiter": "\t",
   "storeFeatureDataUrl": "http://10.100.166.81:9200/keys/KEYS",
-  "storeMetaDataUrl": "http://10.100.166.81:9200/global/GLOBAL"
+  "storeMetaDataUrl": "http://10.100.166.81:9200/global/GLOBAL",
+  "featureList": ["spam", "ham"]
 }
